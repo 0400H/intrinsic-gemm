@@ -32,6 +32,10 @@
 *.exe
 *.out
 *.app
+
 # Python
 .ipynb_checkpoints
 *.pyc
+
+# Others
+.vscode
