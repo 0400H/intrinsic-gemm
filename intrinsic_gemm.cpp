@@ -5720,3 +5720,24 @@ IceSwordStatus IntrinsicGemm< char, char, int >::dispatch(
 #endif
 
 }
+
+extern "C" {
+    void * get_instance() {
+        return (void *) (new IceSword::IntrinsicGemm<char, char, int>);
+    }
+
+    IceSword::IceSwordStatus instance_init(void* instance_ptr, const bool trans_a, const bool trans_b,
+                                           const int m, const int n, const int k) {
+        auto instance = reinterpret_cast<IceSword::IntrinsicGemm<char, char, int> *>(instance_ptr);
+        auto status = instance->init(trans_a, trans_b, m, n, k);
+        return status;
+    }
+
+    IceSword::IceSwordStatus instance_dispatch(void* instance_ptr, const float alpha,
+                                               const float beta, const char* a,
+                                               const char* b, int* c) {
+        auto instance = reinterpret_cast<IceSword::IntrinsicGemm<char, char, int> *>(instance_ptr);
+        auto status = instance->dispatch(alpha, beta, a, b, c);
+        return status;
+    }
+}

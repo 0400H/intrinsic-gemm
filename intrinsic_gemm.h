@@ -5,8 +5,6 @@
 
 namespace IceSword {
 
-// using namespace IceSword;
-
 template<typename inDtype_A,
          typename inDtype_B,
          typename outDtype>
@@ -40,6 +38,17 @@ private:
     int32_t _offset_c{0};
 };
 
+}
+
+extern "C" {
+    void * get_instance();
+
+    IceSword::IceSwordStatus instance_init(void* instance_ptr, const bool trans_a, const bool trans_b,
+                                           const int m, const int n, const int k);
+
+    IceSword::IceSwordStatus instance_dispatch(void* instance_ptr, const float alpha,
+                                               const float beta, const char* a,
+                                               const char* b, int* c);
 }
 
 #endif //INTRINSIC_GEMM_H

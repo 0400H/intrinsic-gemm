@@ -52,24 +52,24 @@ int main(int argc, const char** argv) {
         std::cout << "AVX256 enabled" << std::endl;
 
         const int m {2}, n{2}, k{3};
-        class IceSword::IntrinsicGemm<char, char, int> gemm_engine;
-        gemm_engine.init(false, false, m, n, k);
+        auto gemm_engine = get_instance();
+        auto status = instance_init(gemm_engine, false, false, m, n, k);
 
         auto matrix_a = reinterpret_cast<char *>(calloc(m*k, sizeof(char)));
         auto matrix_b = reinterpret_cast<char *>(calloc(n*k, sizeof(char)));
         auto matrix_c = reinterpret_cast<int *>(calloc(m*n, sizeof(char)));
         auto matrix_c_ref = reinterpret_cast<int *>(calloc(m*n, sizeof(int)));
+
         fill_matrix(matrix_a, m, k);
         fill_matrix(matrix_b, n, k);
 
-        gemm_engine.dispatch(1.0, 1.0, matrix_a, matrix_b, matrix_c);
+        status = instance_dispatch(gemm_engine, 1.0, 1.0, matrix_a, matrix_b, matrix_c);
         gemm_test(matrix_a, matrix_b, matrix_c_ref, m, n, k);
 
         auto error_rate = cout_diff(matrix_c_ref, matrix_c, m*n);
         std::cout << "error_rate: " << error_rate << std::endl;
 
-        // print_matrix(matrix_c, m, n);
-        // print_matrix(matrix_c_ref, m, n);
+        print_matrix(matrix_c_ref, m, n);
     #else
         std::cout << "AVX256 disabled" << std::endl;
     #endif
