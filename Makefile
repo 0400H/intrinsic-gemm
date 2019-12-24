@@ -23,4 +23,4 @@ intrinsic_gemm_test:libintrinsic_gemm.so	libintrinsic_gemm.a
 
 clean:
 	rm -rf *.i *.s *.o *.a *.so intrinsic_gemm_test
-all:clean	intrinsic_gemm_test
+all:intrinsic_gemm_test
