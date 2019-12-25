@@ -1,54 +1,18 @@
 #ifndef INTRINSIC_GEMM_H
 #define INTRINSIC_GEMM_H
 
-#include "intrinsic_types.h"
-
-namespace IceSword {
-
-template<typename inDtype_A,
-         typename inDtype_B,
-         typename outDtype>
-class IntrinsicGemm {
-
-public:
-    IntrinsicGemm() = default;
-    ~IntrinsicGemm() {}
-
-    IceSwordStatus init(const bool trans_a, const bool trans_b,
-                        const int m, const int n, const int k);
-
-    IceSwordStatus dispatch(const float alpha, const float beta,
-                            const inDtype_A* a, const inDtype_B* b,
-                            outDtype* c);
-
-private:
-    int _m{-1};
-    int _n{-1};
-    int _k{-1};
-    int _lda{-1};
-    int _ldb{-1};
-    int _ldc{-1};
-    float _alpha{1.f};
-    float _beta{0.f};
-    char _trans_a{'N'};
-    char _trans_b{'N'};
-    char _offset_c_flag{'F'};
-    int8_t _offset_a{0};
-    int8_t _offset_b{0};
-    int32_t _offset_c{0};
-};
-
-}
+#include "intrinsic_gemm.hpp"
+// #include "intrinsic_types.hpp"
 
 extern "C" {
-    void * get_instance();
+    void * get_instance(IceSword::DataType type_a, IceSword::DataType type_b, IceSword::DataType type_c);
 
     IceSword::IceSwordStatus instance_init(void* instance_ptr, const bool trans_a, const bool trans_b,
                                            const int m, const int n, const int k);
 
     IceSword::IceSwordStatus instance_dispatch(void* instance_ptr, const float alpha,
-                                               const float beta, const char* a,
-                                               const char* b, int* c);
+                                               const float beta, const void* a,
+                                               const void* b, void* c);
 }
 
-#endif //INTRINSIC_GEMM_H
+#endif // INTRINSIC_GEMM_H

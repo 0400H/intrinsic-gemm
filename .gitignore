@@ -39,3 +39,4 @@
 
 # Others
 .vscode
+intrinsic_gemm_test

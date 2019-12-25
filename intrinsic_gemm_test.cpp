@@ -1,6 +1,8 @@
 #include "intrinsic_gemm.h"
 #include <iostream>
 
+using namespace IceSword;
+
 template<typename matrix_type>
 void fill_matrix(matrix_type matrix, size_t dim_x, size_t dim_y) {
     for (size_t x_idx = 0; x_idx < dim_x; ++x_idx) {
@@ -52,8 +54,11 @@ int main(int argc, const char** argv) {
         std::cout << "AVX256 enabled" << std::endl;
 
         const int m {2}, n{2}, k{3};
-        auto gemm_engine = get_instance();
+        auto gemm_engine = get_instance(DT_INT8, DT_INT8, DT_INT8);
         auto status = instance_init(gemm_engine, false, false, m, n, k);
+        if (status != IceSwordSuccess) {
+            std::cout << "init failed!" << std::endl;
+        }
 
         auto matrix_a = reinterpret_cast<char *>(calloc(m*k, sizeof(char)));
         auto matrix_b = reinterpret_cast<char *>(calloc(n*k, sizeof(char)));
@@ -64,6 +69,9 @@ int main(int argc, const char** argv) {
         fill_matrix(matrix_b, n, k);
 
         status = instance_dispatch(gemm_engine, 1.0, 1.0, matrix_a, matrix_b, matrix_c);
+        if (status != IceSwordSuccess) {
+            std::cout << "dispatch failed!" << std::endl;
+        }
         gemm_test(matrix_a, matrix_b, matrix_c_ref, m, n, k);
 
         auto error_rate = cout_diff(matrix_c_ref, matrix_c, m*n);

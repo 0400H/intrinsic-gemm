@@ -10,6 +10,25 @@ typedef unsigned short uint16_t;
 typedef int int32_t;
 typedef unsigned int uint32_t;
 
+enum DataType {
+    DT_INVALID      =       -1,
+    DT_HALF         =       0,
+    DT_FLOAT        =       1,
+    DT_DOUBLE       =       2,
+    DT_INT8         =       3,
+    DT_INT16        =       4,
+    DT_INT32        =       5,
+    DT_INT64        =       6,
+    DT_UINT8        =       7,
+    DT_UINT16       =       8,
+    DT_UINT32       =       9,
+    DT_UINT64       =       10,
+    DT_STRING       =       11,
+    DT_BOOL         =       12,
+    DT_SHAPE        =       13,
+    DT_TENSOR       =       14
+};
+
 typedef enum {
     IceSwordSuccess         = -1,                                /*!< No errors */
     IceSwordNotInitialized  = 1,                                 /*!< Data not initialized. */

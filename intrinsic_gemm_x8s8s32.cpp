@@ -1,11 +1,4 @@
-#include "intrinsic_gemm.h"
-
-#include <emmintrin.h>
-#include <mmintrin.h>
-#include <immintrin.h>
-#include <smmintrin.h>
-#include <x86intrin.h>
-#include <iostream>
+#include "intrinsic_gemm.hpp"
 
 namespace IceSword {
 
@@ -5707,7 +5700,7 @@ IceSwordStatus IntrinsicGemm< char, char, int >::init(
         const bool trans_a, const bool trans_b,
         const int m, const int n, const int k) {
     std::cout << "not impl" << std::endl;
-    return IceSwordSuccess;
+    return IceSwordUnImplError;
 }
 
 template <>
@@ -5715,29 +5708,8 @@ IceSwordStatus IntrinsicGemm< char, char, int >::dispatch(
         const float alpha, const float beta,
         const  char* ptr_a, const  char* ptr_b, int* ptr_c) {
     std::cout << "not impl" << std::endl;
-    return IceSwordSuccess;
+    return IceSwordUnImplError;
 }
 #endif
 
-}
-
-extern "C" {
-    void * get_instance() {
-        return (void *) (new IceSword::IntrinsicGemm<char, char, int>);
-    }
-
-    IceSword::IceSwordStatus instance_init(void* instance_ptr, const bool trans_a, const bool trans_b,
-                                           const int m, const int n, const int k) {
-        auto instance = reinterpret_cast<IceSword::IntrinsicGemm<char, char, int> *>(instance_ptr);
-        auto status = instance->init(trans_a, trans_b, m, n, k);
-        return status;
-    }
-
-    IceSword::IceSwordStatus instance_dispatch(void* instance_ptr, const float alpha,
-                                               const float beta, const char* a,
-                                               const char* b, int* c) {
-        auto instance = reinterpret_cast<IceSword::IntrinsicGemm<char, char, int> *>(instance_ptr);
-        auto status = instance->dispatch(alpha, beta, a, b, c);
-        return status;
-    }
 }
