@@ -40,7 +40,7 @@ template<typename matrix_type>
 float cout_diff(matrix_type matrix_a, matrix_type matrix_b, size_t length, float loss_rate=1e-4) {
     size_t diff_num = 0;
     for (size_t idx = 0; idx < length; ++idx) {
-        auto cur_loss_rate = float(matrix_b[idx] - matrix_a[idx]) / float(length);
+        auto cur_loss_rate = float(matrix_b[idx] - matrix_a[idx]) / float(matrix_a[idx]+1e-6);
         if (cur_loss_rate > loss_rate) {
             ++diff_num;
         }
