@@ -35,9 +35,9 @@ libintrinsic_gemm.so:intrinsic_gemm.o intrinsic_gemm_x8s8s32.o intrinsic_gemm_f3
 # libintrinsic_gemm.so:intrinsic_gemm.c intrinsic_gemm_x8s8s32.cpp intrinsic_gemm_f32f32f32.cpp
 # 	@$(C++) -o libintrinsic_gemm.so intrinsic_gemm.c intrinsic_gemm_x8s8s32.cpp intrinsic_gemm_f32f32f32.cpp -shared -fPIC -std=c++11 -march=native -O0 -Wall
 
-intrinsic_gemm_test:libintrinsic_gemm.so libintrinsic_gemm.a
-	@$(C++) -o intrinsic_gemm_test intrinsic_gemm_test.cpp -L $(MAKEFILE_DIR) -l intrinsic_gemm -std=c++11 -march=native -Wall -g3
+intrinsic_gemm_test.out:libintrinsic_gemm.so libintrinsic_gemm.a
+	@$(C++) -o intrinsic_gemm_test.out intrinsic_gemm_test.cpp -L $(MAKEFILE_DIR) -l intrinsic_gemm -std=c++11 -march=native -Wall -g3
 
 clean:
-	rm -rf *.i *.s *.o *.a *.so intrinsic_gemm_test
-all:intrinsic_gemm_test
+	rm -rf *.i *.ii *.s *.o *.a *.so *.out
+all:intrinsic_gemm_test.out
