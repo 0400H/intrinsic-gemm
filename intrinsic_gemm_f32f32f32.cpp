@@ -4,8 +4,31 @@ namespace IceSword {
 
 #if defined(__AVX2__)
 
+// https://stackoverflow.com/questions/13219146/how-to-sum-m256-horizontally
+static inline float _mm256_extract_add_ps(__m256 x) {
+    // (x3+x7, x2+x6, x1+x5, x0+x4), cycle 6
+    const __m128 x128 = _mm_add_ps(_mm256_extractf128_ps(x, 1), _mm256_castps256_ps128(x));
+    // (_, _, x1+x3+x5+x7, x0+x2+x4+x6), cycle 4
+    const __m128 x64 = _mm_add_ps(x128, _mm_movehl_ps(x128, x128));
+    // (_, _, _, x0+x1+x2+x3+x4+x5+x6+x7), cycle 4
+    const __m128 x32 = _mm_add_ss(x64, _mm_shuffle_ps(x64, x64, 0x55));
+    // cycle 1
+    return _mm_cvtss_f32(x32);
+}
+
+static inline float _mm256_permute_add_ps(__m256 x) {
+    // (_, _, _, _, x7+x3, x6+x2, x5+x1, x4+x0), cycle 6
+    x = _mm256_add_ps(x, _mm256_permute2f128_ps(x, x, 0x01));
+    // (_, _, _, _, _, _, x7+x3+x6+x2, x5+x1+x4+x0), cycle undefined
+    x = _mm256_hadd_ps(x, x);
+    // (_, _, _, _, _, _, x7+x3+x6+x2+x5+x1+x4+x0), cycle undefined
+    x = _mm256_hadd_ps(x, x);
+    // cycle _mm256_cvtss_f32
+    return _mm256_cvtss_f32(x);
+}
+
 void block1x1_kernel_avx2(const float* a, const float* b, float* c, const int32_t k) {
-    //printf("block1x1_kernel_avx2\n");
+    // printf("block1x1_kernel_avx2\n");
     const float* pa0 = a;
     const float* pb0 = b;
     float* pc0 = c;
@@ -41,11 +64,8 @@ void block1x1_kernel_avx2(const float* a, const float* b, float* c, const int32_
         sum0 = _mm256_fmadd_ps(ma0, mb0, sum0);
     }
 
-    //store
-    sum0 = _mm256_add_ps(sum0, _mm256_permute2f128_ps(sum0, sum0, 0x81));
-    sum0 = _mm256_add_ps(sum0, (__m256)_mm256_srli_si256((__m256i)sum0, 8));
-    sum0 = _mm256_add_ps(sum0, (__m256)_mm256_srli_si256((__m256i)sum0, 4));
-    pc0[0] = _mm256_extract_epi32(sum0, 0);
+    pc0[0] = _mm256_extract_add_ps(sum0);
+    // pc0[0] = _mm256_permute_add_ps(sum0);
 }
 
 void block1x2_kernel_avx2(const float* a, const int32_t lda,
@@ -81,12 +101,11 @@ void sgemm_avx2(const int32_t m, const int32_t n, const int32_t k,
                 const float* a, const int32_t lda,
                 const float* b, const int32_t ldb,
                 float* c, const int32_t ldc) {
-    for (size_t m_idx = 0; m_idx < m; ++m_idx) {
-        for (size_t n_idx = 0; n_idx < n; ++n_idx) {
+    for (auto m_idx = 0; m_idx < m; ++m_idx) {
+        for (auto n_idx = 0; n_idx < n; ++n_idx) {
             block1x1_kernel_avx2(a + m_idx * lda,
                                  b + n_idx * ldb,
-                                 c + m_idx * ldc + n_idx,
-                                 k);
+                                 c + m_idx * ldc + n_idx, k);
         }
     }
 }
@@ -112,8 +131,8 @@ template <>
 IceSwordStatus IntrinsicGemm< float, float, float>::dispatch(
     const float alpha, const float beta,
     const float* ptr_a, const float* ptr_b, float* ptr_c) {
-    std::cout << "not impl" << std::endl;
-    return IceSwordUnImplError;
+    sgemm_avx2(_m, _n, _k, ptr_a, _lda, ptr_b, _ldb, ptr_c, _ldc);
+    return IceSwordSuccess;
 }
 
 #else
@@ -122,7 +141,7 @@ template <>
 IceSwordStatus IntrinsicGemm< float, float, float >::init(
     const bool trans_a, const bool trans_b,
     const int m, const int n, const int k) {
-    std::cout << "not impl" << std::endl;
+    std::cout << __LINE__ << ": not impl!" << std::endl;
     return IceSwordUnImplError;
 }
 
@@ -130,7 +149,7 @@ template <>
 IceSwordStatus IntrinsicGemm< float, float, float >::dispatch(
     const float alpha, const float beta,
     const float* ptr_a, const float* ptr_b, float* ptr_c) {
-    std::cout << "not impl" << std::endl;
+    std::cout << __LINE__ << ": not impl!" << std::endl;
     return IceSwordUnImplError;
 }
 

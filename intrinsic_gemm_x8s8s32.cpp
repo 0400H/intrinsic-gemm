@@ -5664,8 +5664,8 @@ inline void avx_s8s8s32_gemm_2x4_packed(
     const int n_block = 2;
     int mb = m / m_block;
     int nb = n / n_block;
-    int m_remainder = m % m_block;
-    int n_remainder = n % n_block;
+    // int m_remainder = m % m_block;
+    // int n_remainder = n % n_block;
     // CHECK_EQ(m_remainder, 0) << "only support remainder = 0";
     // CHECK_EQ(n_remainder, 0) << "only support remainder = 0";
 
@@ -5681,13 +5681,13 @@ inline void avx_s8s8s32_gemm_2x4_packed(
 template <>
 IceSwordStatus IntrinsicGemm< char, char, int>::dispatch(
     const float alpha, const float beta,
-    const  char* ptr_a, const  char* ptr_b, int* ptr_c) {
+    const char* ptr_a, const  char* ptr_b, int* ptr_c) {
     // CHECK(ptr_a != nullptr);
     // CHECK(ptr_b != nullptr);
     // CHECK(ptr_c != nullptr);
     // std::cout<< "chgemm_c_c_n_t_avx2 dispatch";
     // std::cout<<_m<< ","<<_n<< ","<<_k<< ","<< ","<<_lda<< ","<< ","<<_ldb<< ","<<_ldc;
-    chgemm_c_c_n_t_avx2(_m, _n, _k, (int8_t*)ptr_a, _lda, (int8_t*)ptr_b, _ldb, ptr_c, _ldc);
+    chgemm_c_c_n_t_avx2(_m, _n, _k, (const int8_t*)ptr_a, _lda, (const int8_t*)ptr_b, _ldb, ptr_c, _ldc);
     // std::cout<< "chgemm_c_c_n_t_avx2 end";
     // avx_s8s8s32_gemm_2x4_packed(_m,_n,_k,ptr_a,_lda,ptr_b,_ldb,ptr_c,_ldc);
     // exit(0);
