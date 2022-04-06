@@ -2,11 +2,6 @@
 #define INTRINSIC_GEMM_HPP
 
 #include "intrinsic_types.hpp"
-#include <emmintrin.h>
-#include <mmintrin.h>
-#include <immintrin.h>
-#include <smmintrin.h>
-#include <x86intrin.h>
 #include <iostream>
 
 namespace IceSword {
@@ -15,7 +10,6 @@ template<typename inDtype_A,
          typename inDtype_B,
          typename outDtype>
 class IntrinsicGemm {
-
 public:
     IntrinsicGemm() = default;
     ~IntrinsicGemm() {}

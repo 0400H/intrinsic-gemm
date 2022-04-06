@@ -1,5 +1,6 @@
 import unittest
 import ctypes
+import time
 import numpy as np
 import numba as nb
 
@@ -21,7 +22,7 @@ def gemm_reference(matrix_a, matrix_b, matrix_c, m, n, k):
     for m_idx in range(m):
         for n_idx in range(n):
             for k_idx in range(k):
-                matrix_c[m_idx*n+n_idx] += matrix_a[m_idx*k+k_idx] * matrix_b[n_idx*k+k_idx];
+                matrix_c[m_idx*n+n_idx] += matrix_a[m_idx*k+k_idx] * matrix_b[n_idx*k+k_idx]
     return None
 
 def intrinsic_gemm_impl(matrix_a, matrix_b, matrix_c, m, n, k, type_a, type_b, type_c):
@@ -46,11 +47,13 @@ def intrinsic_gemm_impl(matrix_a, matrix_b, matrix_c, m, n, k, type_a, type_b, t
 
     intrinnsic_gemm_engine = get_instance_func(type_dict[str(type_a)], type_dict[str(type_b)], type_dict[str(type_c)])
     status = instance_init_func(intrinnsic_gemm_engine, False, False, m, n, k)
+    t = time.time()
     status = instance_dispatch_func(intrinnsic_gemm_engine, 1.0, 1.0,
                                     matrix_a.ctypes.data_as(ctypes.c_void_p),
                                     matrix_b.ctypes.data_as(ctypes.c_void_p),
                                     matrix_c.ctypes.data_as(ctypes.c_void_p))
-    return status
+    t = time.time() - t
+    return t, status
 
 def test_error_num(m, n, k, a_type, b_type, c_type, debug=False, loss_rate=1e-4):
     if debug == True:
@@ -62,8 +65,15 @@ def test_error_num(m, n, k, a_type, b_type, c_type, debug=False, loss_rate=1e-4)
     matrix_c= np.zeros(shape=(m*n), dtype=c_type)
     matrix_c_ref = np.zeros(shape=(m*n), dtype=np.float)
 
-    intrinsic_gemm_impl(matrix_a, matrix_b, matrix_c, m, n, k, a_type, b_type, c_type)
-    gemm_reference(matrix_a.copy().astype(np.float), matrix_b.copy().astype(np.float), matrix_c_ref, m, n, k)
+    t1, _ = intrinsic_gemm_impl(matrix_a, matrix_b, matrix_c, m, n, k, a_type, b_type, c_type)
+
+    matrix_a_ref = matrix_a.copy().astype(np.float)
+    matrix_b_ref = matrix_b.copy().astype(np.float)
+    t2 = time.time()
+    gemm_reference(matrix_a_ref, matrix_b_ref, matrix_c_ref, m, n, k)
+    t2 = time.time() - t2
+
+    print("time: intrinsic_gemm {}, gemm_reference {}, scale {}".format(t1*1000, t2*1000, t2/t1))
 
     error_num = cout_error(matrix_c_ref, matrix_c, m*n, debug, loss_rate)
     return error_num
@@ -71,9 +81,9 @@ def test_error_num(m, n, k, a_type, b_type, c_type, debug=False, loss_rate=1e-4)
 class intrinsic_gemm_unit_test(unittest.TestCase):
     def setUp(self):
         self.loss_rate = 1e-3
-        self.test_m = [1, 2, 4, 8, 16, 32, 33, 41, 45, 47]
-        self.test_n = [1, 2, 4, 8, 16, 32, 33, 41, 45, 47]
-        self.test_k = [1, 2, 4, 8, 16, 32, 33, 41, 45, 47, 32768]
+        self.test_m = [1, 2, 4, 8, 16, 32, 64]
+        self.test_n = [1, 2, 4, 8, 16, 32, 64]
+        self.test_k = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536]
 
     def test_s8s8s32(self):
         for m in self.test_m:
@@ -81,6 +91,7 @@ class intrinsic_gemm_unit_test(unittest.TestCase):
                 for k in self.test_k:
                     error_num = test_error_num(m, n, k, np.int8, np.int8, np.int32, False, self.loss_rate)
                     msg = 's8s8s32, m:{}, n:{}, k:{}, error_num: {}'.format(m, n, k, error_num)
+                    print(msg)
                     self.assertEqual(0, error_num, msg)
 
     def test_f32f32f32(self):
@@ -89,6 +100,7 @@ class intrinsic_gemm_unit_test(unittest.TestCase):
                 for k in self.test_k:
                     error_num = test_error_num(m, n, k, np.float32, np.float32, np.float32, False, self.loss_rate)
                     msg = 'f32f32f32, m:{}, n:{}, k:{}, error_num: {}'.format(m, n, k, error_num)
+                    print(msg)
                     self.assertEqual(0, error_num, msg)
     pass
 

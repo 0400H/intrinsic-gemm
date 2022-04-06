@@ -1,6 +1,8 @@
+#include "intrinsic_gemm.hpp"
 #include "intrinsic_gemm.h"
 
 extern "C" {
+
     typedef struct {
         void * instance_ptr = nullptr;
         IceSword::DataType dtype_a;
@@ -21,7 +23,7 @@ extern "C" {
         instance_handle->dtype_a = type_a;
         instance_handle->dtype_b = type_b;
         instance_handle->dtype_c = type_c;
-        return (void *) (instance_handle);
+        return (void *)instance_handle;
     }
 
     IceSword::IceSwordStatus instance_init(void* instance_handle, const bool trans_a, const bool trans_b,
@@ -62,4 +64,5 @@ extern "C" {
         }
         return status;
     }
+
 }

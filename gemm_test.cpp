@@ -1,6 +1,6 @@
 #include "intrinsic_gemm.h"
 #include <iostream>
-#include<cmath>
+#include <cmath>
 
 using namespace IceSword;
 

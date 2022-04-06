@@ -1,5 +1,7 @@
-#ifndef INTRINSIC_TYPES_H
-#define INTRINSIC_TYPES_H
+#ifndef INTRINSIC_TYPES_HPP
+#define INTRINSIC_TYPES_HPP
+
+#include "intrinsic_utils.h"
 
 namespace IceSword {
 
@@ -14,13 +16,6 @@ typedef enum {
     IceSwordUnImplError     = (1 << 6) + IceSwordOutOfMem,       /*!< Unimplement error. */
     IceSwordWrongDevice     = (1 << 7) + IceSwordUnImplError     /*!< un-correct device. */
 } IceSwordStatus;
-
-typedef signed char int8_t;
-typedef unsigned char uint8_t;
-typedef short int16_t;
-typedef unsigned short uint16_t;
-typedef int int32_t;
-typedef unsigned int uint32_t;
 
 enum DataType {
     DT_INVALID      =       -1,
@@ -106,4 +101,4 @@ struct DataTrait<DT_UINT32> {
 
 }
 
-#endif //INTRINSIC_TYPES_H
+#endif //INTRINSIC_TYPES_HPP
