@@ -1,5 +1,5 @@
-#include "intrinsic_gemm.hpp"
-#include "intrinsic_gemm.h"
+#include "gemm_intrinsic.hpp"
+#include "gemm_intrinsic.h"
 
 extern "C" {
 
@@ -26,10 +26,10 @@ extern "C" {
         return (void *)instance_handle;
     }
 
-    IceSword::IceSwordStatus instance_init(void* instance_handle, const bool trans_a, const bool trans_b,
+    IceSword::S_Status instance_init(void* instance_handle, const bool trans_a, const bool trans_b,
                                            const int m, const int n, const int k) {
         auto handle = reinterpret_cast<InstanceHandle *>(instance_handle);
-        auto status = IceSword::IceSwordUnImplError;
+        auto status = IceSword::S_UnImplError;
 
         if (handle->dtype_b == IceSword::DT_INT8) {
             if (handle->dtype_a == IceSword::DT_INT8) {
@@ -42,11 +42,11 @@ extern "C" {
         return status;
     }
 
-    IceSword::IceSwordStatus instance_dispatch(void* instance_handle, const float alpha,
+    IceSword::S_Status instance_dispatch(void* instance_handle, const float alpha,
                                                const float beta, const void* a,
                                                const void* b, void* c) {
         auto handle = reinterpret_cast<InstanceHandle *>(instance_handle);
-        auto status = IceSword::IceSwordUnImplError;
+        auto status = IceSword::S_UnImplError;
 
         if (handle->dtype_b == IceSword::DT_INT8) {
             if (handle->dtype_a == IceSword::DT_INT8) {

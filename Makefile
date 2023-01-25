@@ -20,35 +20,35 @@ sgemm_f32f32f32_avx2.s:sgemm_f32f32f32_avx2.i
 sgemm_f32f32f32_avx2.o:sgemm_f32f32f32_avx2.s
 	@$(C++) -o sgemm_f32f32f32_avx2.o -c sgemm_f32f32f32_avx2.s -std=c++11 -O0 -Wall -g3
 
-intrinsic_gemm.i:intrinsic_gemm.c
-	@$(C++) -o intrinsic_gemm.i -E intrinsic_gemm.c -I $(MAKEFILE_DIR) -std=c++11 -march=native -O0 -Wall -g0
-intrinsic_gemm.s:intrinsic_gemm.i
-	@$(C++) -o intrinsic_gemm.s -S intrinsic_gemm.i -fverbose-asm -fPIC -std=c++11 -march=native -O0 -Wall -g3
-intrinsic_gemm.o:intrinsic_gemm.s
-	@$(C++) -o intrinsic_gemm.o -c intrinsic_gemm.s -std=c++11 -O0 -Wall -g3
+gemm_intrinsic.i:gemm_intrinsic.c
+	@$(C++) -o gemm_intrinsic.i -E gemm_intrinsic.c -I $(MAKEFILE_DIR) -std=c++11 -march=native -O0 -Wall -g0
+gemm_intrinsic.s:gemm_intrinsic.i
+	@$(C++) -o gemm_intrinsic.s -S gemm_intrinsic.i -fverbose-asm -fPIC -std=c++11 -march=native -O0 -Wall -g3
+gemm_intrinsic.o:gemm_intrinsic.s
+	@$(C++) -o gemm_intrinsic.o -c gemm_intrinsic.s -std=c++11 -O0 -Wall -g3
 
-intrinsic_gemm_x8s8s32.i:intrinsic_gemm_x8s8s32.cpp
-	@$(C++) -o intrinsic_gemm_x8s8s32.i -E intrinsic_gemm_x8s8s32.cpp -I $(MAKEFILE_DIR) -std=c++11 -march=native -O0 -Wall -g0
-intrinsic_gemm_x8s8s32.s:intrinsic_gemm_x8s8s32.i
-	@$(C++) -o intrinsic_gemm_x8s8s32.s -S intrinsic_gemm_x8s8s32.i -fverbose-asm -fPIC -std=c++11 -march=native -O0 -Wall -g3
-intrinsic_gemm_x8s8s32.o:intrinsic_gemm_x8s8s32.s
-	@$(C++) -o intrinsic_gemm_x8s8s32.o -c intrinsic_gemm_x8s8s32.s -std=c++11 -O0 -Wall -g3
+gemm_intrinsic_x8s8s32.i:gemm_intrinsic_x8s8s32.cpp
+	@$(C++) -o gemm_intrinsic_x8s8s32.i -E gemm_intrinsic_x8s8s32.cpp -I $(MAKEFILE_DIR) -std=c++11 -march=native -O0 -Wall -g0
+gemm_intrinsic_x8s8s32.s:gemm_intrinsic_x8s8s32.i
+	@$(C++) -o gemm_intrinsic_x8s8s32.s -S gemm_intrinsic_x8s8s32.i -fverbose-asm -fPIC -std=c++11 -march=native -O0 -Wall -g3
+gemm_intrinsic_x8s8s32.o:gemm_intrinsic_x8s8s32.s
+	@$(C++) -o gemm_intrinsic_x8s8s32.o -c gemm_intrinsic_x8s8s32.s -std=c++11 -O0 -Wall -g3
 
-intrinsic_gemm_f32f32f32.i:intrinsic_gemm_f32f32f32.cpp
-	@$(C++) -o intrinsic_gemm_f32f32f32.i -E intrinsic_gemm_f32f32f32.cpp -I $(MAKEFILE_DIR) -std=c++11 -march=native -O0 -Wall -g0
-intrinsic_gemm_f32f32f32.s:intrinsic_gemm_f32f32f32.i
-	@$(C++) -o intrinsic_gemm_f32f32f32.s -S intrinsic_gemm_f32f32f32.i -fverbose-asm -fPIC -std=c++11 -march=native -O0 -Wall -g3
-intrinsic_gemm_f32f32f32.o:intrinsic_gemm_f32f32f32.s
-	@$(C++) -o intrinsic_gemm_f32f32f32.o -c intrinsic_gemm_f32f32f32.s -std=c++11 -O0 -Wall -g3
+gemm_intrinsic_f32f32f32.i:gemm_intrinsic_f32f32f32.cpp
+	@$(C++) -o gemm_intrinsic_f32f32f32.i -E gemm_intrinsic_f32f32f32.cpp -I $(MAKEFILE_DIR) -std=c++11 -march=native -O0 -Wall -g0
+gemm_intrinsic_f32f32f32.s:gemm_intrinsic_f32f32f32.i
+	@$(C++) -o gemm_intrinsic_f32f32f32.s -S gemm_intrinsic_f32f32f32.i -fverbose-asm -fPIC -std=c++11 -march=native -O0 -Wall -g3
+gemm_intrinsic_f32f32f32.o:gemm_intrinsic_f32f32f32.s
+	@$(C++) -o gemm_intrinsic_f32f32f32.o -c gemm_intrinsic_f32f32f32.s -std=c++11 -O0 -Wall -g3
 
-libintrinsic_gemm.a:chgemm_x8s8s32_avx2.o sgemm_f32f32f32_avx2.o intrinsic_gemm_x8s8s32.o intrinsic_gemm_f32f32f32.o intrinsic_gemm.o
-	ar rcs libintrinsic_gemm.a *.o
+libgemm_intrinsic.a:chgemm_x8s8s32_avx2.o sgemm_f32f32f32_avx2.o gemm_intrinsic_x8s8s32.o gemm_intrinsic_f32f32f32.o gemm_intrinsic.o
+	ar rcs libgemm_intrinsic.a *.o
 
-libintrinsic_gemm.so:chgemm_x8s8s32_avx2.o sgemm_f32f32f32_avx2.o intrinsic_gemm_x8s8s32.o intrinsic_gemm_f32f32f32.o intrinsic_gemm.o
-	@$(C++) -o libintrinsic_gemm.so *.o -shared -std=c++11 -O0 -Wall
+libgemm_intrinsic.so:chgemm_x8s8s32_avx2.o sgemm_f32f32f32_avx2.o gemm_intrinsic_x8s8s32.o gemm_intrinsic_f32f32f32.o gemm_intrinsic.o
+	@$(C++) -o libgemm_intrinsic.so *.o -shared -std=c++11 -O0 -Wall
 
-gemm_test.out:libintrinsic_gemm.so libintrinsic_gemm.a
-	@$(C++) -o gemm_test.out gemm_test.cpp -I $(MAKEFILE_DIR) -L $(MAKEFILE_DIR) -l intrinsic_gemm -std=c++11 -march=native -Wall -g3
+gemm_test.out:libgemm_intrinsic.so libgemm_intrinsic.a
+	@$(C++) -o gemm_test.out gemm_test.cpp -I $(MAKEFILE_DIR) -L $(MAKEFILE_DIR) -l gemm_intrinsic -std=c++11 -march=native -Wall -g3
 
 clean:
 	rm -rf *.i *.ii *.s *.o *.a *.so *.out

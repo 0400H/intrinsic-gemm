@@ -14,10 +14,10 @@ public:
     IntrinsicGemm() = default;
     ~IntrinsicGemm() {}
 
-    IceSwordStatus init(const bool trans_a, const bool trans_b,
+    S_Status init(const bool trans_a, const bool trans_b,
                         const int m, const int n, const int k);
 
-    IceSwordStatus dispatch(const float alpha, const float beta,
+    S_Status dispatch(const float alpha, const float beta,
                             const inDtype_A* a, const inDtype_B* b,
                             outDtype* c);
 

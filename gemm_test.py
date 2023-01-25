@@ -25,22 +25,22 @@ def gemm_reference(matrix_a, matrix_b, matrix_c, m, n, k):
                 matrix_c[m_idx*n+n_idx] += matrix_a[m_idx*k+k_idx] * matrix_b[n_idx*k+k_idx]
     return None
 
-def intrinsic_gemm_impl(matrix_a, matrix_b, matrix_c, m, n, k, type_a, type_b, type_c):
+def gemm_intrinsic_impl(matrix_a, matrix_b, matrix_c, m, n, k, type_a, type_b, type_c):
     type_dict = {"<class 'numpy.float32'>": 1,
                  "<class 'numpy.int8'>": 3,
                  "<class 'numpy.int32'>": 5,
                  "<class 'numpy.uint8'>": 7}
 
-    get_instance_func = intrinsic_gemm_so.get_instance
+    get_instance_func = gemm_intrinsic_so.get_instance
     get_instance_func.argtypes = (ctypes.c_int, ctypes.c_int, ctypes.c_int)
     get_instance_func.restype = ctypes.c_void_p
 
-    instance_init_func = intrinsic_gemm_so.instance_init
+    instance_init_func = gemm_intrinsic_so.instance_init
     instance_init_func.argtypes = (ctypes.c_void_p, ctypes.c_bool, ctypes.c_bool,
                                    ctypes.c_int, ctypes.c_int, ctypes.c_int)
     instance_init_func.restype = ctypes.c_int
 
-    instance_dispatch_func = intrinsic_gemm_so.instance_dispatch
+    instance_dispatch_func = gemm_intrinsic_so.instance_dispatch
     instance_dispatch_func.argtypes = (ctypes.c_void_p, ctypes.c_float, ctypes.c_float,
                                        ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)
     instance_dispatch_func.restype = ctypes.c_int
@@ -63,22 +63,22 @@ def test_error_num(m, n, k, a_type, b_type, c_type, debug=False, loss_rate=1e-4)
         matrix_a = np.arange(0, m*k, 1, dtype=a_type)
         matrix_b = np.arange(0, n*k, 1, dtype=b_type)
     matrix_c= np.zeros(shape=(m*n), dtype=c_type)
-    matrix_c_ref = np.zeros(shape=(m*n), dtype=np.float)
+    matrix_c_ref = np.zeros(shape=(m*n), dtype=np.float32)
 
-    t1, _ = intrinsic_gemm_impl(matrix_a, matrix_b, matrix_c, m, n, k, a_type, b_type, c_type)
+    t1, _ = gemm_intrinsic_impl(matrix_a, matrix_b, matrix_c, m, n, k, a_type, b_type, c_type)
 
-    matrix_a_ref = matrix_a.copy().astype(np.float)
-    matrix_b_ref = matrix_b.copy().astype(np.float)
+    matrix_a_ref = matrix_a.copy().astype(np.float32)
+    matrix_b_ref = matrix_b.copy().astype(np.float32)
     t2 = time.time()
     gemm_reference(matrix_a_ref, matrix_b_ref, matrix_c_ref, m, n, k)
     t2 = time.time() - t2
 
-    print("time: intrinsic_gemm {}, gemm_reference {}, scale {}".format(t1*1000, t2*1000, t2/t1))
+    print("time: gemm_intrinsic {}, gemm_reference {}, scale {}".format(t1*1000, t2*1000, t2/t1))
 
     error_num = cout_error(matrix_c_ref, matrix_c, m*n, debug, loss_rate)
     return error_num
 
-class intrinsic_gemm_unit_test(unittest.TestCase):
+class gemm_intrinsic_unit_test(unittest.TestCase):
     def setUp(self):
         self.loss_rate = 1e-3
         self.test_m = [1, 2, 4, 8, 16, 32, 64]
@@ -105,5 +105,5 @@ class intrinsic_gemm_unit_test(unittest.TestCase):
     pass
 
 if __name__ == '__main__':
-    intrinsic_gemm_so = ctypes.CDLL('./libintrinsic_gemm.so')
+    gemm_intrinsic_so = ctypes.CDLL('./libgemm_intrinsic.so')
     unittest.main()

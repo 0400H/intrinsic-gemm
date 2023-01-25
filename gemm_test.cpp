@@ -1,4 +1,4 @@
-#include "intrinsic_gemm.h"
+#include "gemm_intrinsic.h"
 #include <iostream>
 #include <cmath>
 
@@ -75,18 +75,23 @@ void test_func(size_t m, size_t n, size_t k, bool debug=false, float loss_rate=1
     fill_matrix(matrix_a, m, k);
     fill_matrix(matrix_b, n, k);
 
-    auto gemm_engine = get_instance(dtype_a, dtype_b, dtype_c);
-    auto status = instance_init(gemm_engine, false, false, m, n, k);
-    if (status != IceSwordSuccess) {
-        std::cout << "init failed!\n" << std::endl;
+    auto instance = get_instance(dtype_a, dtype_b, dtype_c);
+    auto status = instance_init(instance, false, false, m, n, k);
+
+    std::cout << "test case: " << m << ", " << n << ", " << k
+              << ", dtype: " << GetDtypeStr<dtype_a>() << ", "
+              << GetDtypeStr<dtype_a>() << ", "
+              << GetDtypeStr<dtype_a>() << ", ";
+    if (status != S_Success) {
+        std::cout << "init failed!" << std::endl;
     } else {
-        status = instance_dispatch(gemm_engine, 1.0, 1.0, matrix_a, matrix_b, matrix_c);
-        if (status != IceSwordSuccess) {
-            std::cout << "dispatch failed!\n" << std::endl;
+        status = instance_dispatch(instance, 1.0, 1.0, matrix_a, matrix_b, matrix_c);
+        if (status != S_Success) {
+            std::cout << "dispatch failed!" << std::endl;
         } else {
             gemm_reference(matrix_a, matrix_b, matrix_c_ref, m, n, k);
             auto error_num = cout_error_num(matrix_c_ref, matrix_c, m*n, loss_rate, debug);
-            std::cout << "error_num: " << error_num << "\n" << std::endl;
+            std::cout << "error_num: " << error_num << "" << std::endl;
         }
     }
 }
@@ -94,14 +99,14 @@ void test_func(size_t m, size_t n, size_t k, bool debug=false, float loss_rate=1
 int main(int argc, const char** argv) {
     // https://stackoverflow.com/questions/28939652/how-to-detect-sse-sse2-avx-avx2-avx-512-avx-128-fma-kcvi-availability-at-compile
     #if defined(__AVX2__)
-        std::cout << "AVX256 enabled!\n" << std::endl;
+        std::cout << "AVX256 enabled!" << std::endl;
 
-        test_func<DT_UINT8, DT_INT8, DT_INT32>(47, 47, 17);
-        test_func<DT_INT8, DT_INT8, DT_INT32>(47, 47, 17);
         test_func<DT_FLOAT, DT_FLOAT, DT_FLOAT>(47, 47, 17, false);
+        test_func<DT_INT8, DT_INT8, DT_INT32>(47, 47, 17);
+        test_func<DT_UINT8, DT_INT8, DT_INT32>(47, 47, 17);
 
     #else
-        std::cout << "AVX256 disabled!\n" << std::endl;
+        std::cout << "AVX256 disabled!" << std::endl;
     #endif
     return 0;
 }

@@ -1,4 +1,4 @@
-#include "intrinsic_gemm.hpp"
+#include "gemm_intrinsic.hpp"
 #include "sgemm_f32f32f32_avx2.h"
 
 namespace IceSword {
@@ -6,7 +6,7 @@ namespace IceSword {
 #if defined(__AVX2__)
 
 template <>
-IceSwordStatus IntrinsicGemm< float, float, float >::init(
+S_Status IntrinsicGemm< float, float, float >::init(
     const bool trans_a, const bool trans_b,
     const int m, const int n, const int k) {
     // CHECK_EQ(trans_a, false) << "only support no trans";
@@ -19,33 +19,33 @@ IceSwordStatus IntrinsicGemm< float, float, float >::init(
     _k = k;
     _trans_a = trans_a ? 'T' : 'N';
     _trans_b = trans_b ? 'T' : 'N';
-    return IceSwordSuccess;
+    return S_Success;
 }
 
 template <>
-IceSwordStatus IntrinsicGemm< float, float, float>::dispatch(
+S_Status IntrinsicGemm< float, float, float>::dispatch(
     const float alpha, const float beta,
     const float* ptr_a, const float* ptr_b, float* ptr_c) {
     sgemm_avx2(_m, _n, _k, ptr_a, _lda, ptr_b, _ldb, ptr_c, _ldc);
-    return IceSwordSuccess;
+    return S_Success;
 }
 
 #else
 
 template <>
-IceSwordStatus IntrinsicGemm< float, float, float >::init(
+S_Status IntrinsicGemm< float, float, float >::init(
     const bool trans_a, const bool trans_b,
     const int m, const int n, const int k) {
     std::cout << __LINE__ << ": not impl!" << std::endl;
-    return IceSwordUnImplError;
+    return S_UnImplError;
 }
 
 template <>
-IceSwordStatus IntrinsicGemm< float, float, float >::dispatch(
+S_Status IntrinsicGemm< float, float, float >::dispatch(
     const float alpha, const float beta,
     const float* ptr_a, const float* ptr_b, float* ptr_c) {
     std::cout << __LINE__ << ": not impl!" << std::endl;
-    return IceSwordUnImplError;
+    return S_UnImplError;
 }
 
 #endif
